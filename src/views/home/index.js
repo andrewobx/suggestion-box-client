@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import useSuggestions from '../../state/suggestion/hooks/useSuggestions';
-import { getRelativeTimeFromDate } from '../../utils/date';
+import { getRelativeTimeFromDate, convertDate } from '../../utils/date';
 import ChatIcon from '../../assets/chat-icon.svg';
 import Spinner from '../../components/spinner';
 import Button from '../../components/button';
@@ -12,10 +12,18 @@ import {
   SuggestionFeedIcon,
   SuggestionFeedItem,
   SuggestionForm,
+  SuggestionNotFound,
 } from './components';
 
 const Home = () => {
   const [suggestion, getSuggestions, submitSuggestion, isLoading, error] = useSuggestions();
+  const hasSuggestions = suggestion?.results?.length > 0;
+
+  const handleSubmit = async (values, actions) => {
+    await submitSuggestion(values);
+
+    actions.resetForm();
+  };
 
   useEffect(() => {
     getSuggestions();
@@ -27,7 +35,7 @@ const Home = () => {
       <Container>
         <div className="section">
           <Heading>Make a Suggestion</Heading>
-          <SuggestionForm />
+          <SuggestionForm onSubmit={handleSubmit}/>
         </div>
         <HeadingContainerSpaceBetween>
           <Heading>Suggestion Feed</Heading>
@@ -35,18 +43,27 @@ const Home = () => {
             Refresh
           </Button>
         </HeadingContainerSpaceBetween>
-        <SuggestionFeed>
-          <SuggestionFeedItem data-date={getRelativeTimeFromDate('2021-06-05T00:00:00.000Z')}>
-            <SuggestionFeedIcon src={ChatIcon} alt="Chat Icon" />
-            <section>
-              <div className="title">Suggestion Title</div>
-              <div className="description">Suggestion description here.</div>
-              <div className="footer">
-                Suggested by <span className="bold">Some User</span> on 2021-06-05T00:00:00.000Z
-              </div>
-            </section>
-          </SuggestionFeedItem>
-        </SuggestionFeed>
+        {hasSuggestions ?         
+          <SuggestionFeed>
+            {suggestion?.results?.map((s) => 
+            (
+              <SuggestionFeedItem key={s.id} data-date={getRelativeTimeFromDate(s.createdAt)}>
+                <SuggestionFeedIcon src={ChatIcon} alt="Chat Icon" />
+                <section>
+                  <div className="title">{s.title}</div>
+                  <div className="description">{s.description}</div>
+                  <div className="footer">
+                    Suggested by <span className="bold">{s.user.name}</span> on {convertDate(s.createdAt)}
+                  </div>
+                </section>
+              </SuggestionFeedItem>
+            ))}
+          </SuggestionFeed> : <SuggestionNotFound>No suggestions found.</SuggestionNotFound>
+        }
+
+        {/* Below is used to help preview JSON object values in browser */}
+        {/* <pre>{JSON.stringify(suggestion, null, 2)}</pre> */}
+
       </Container>
     </>
   );

@@ -21,6 +21,7 @@ export const Container = styled.div`
 
 export const Heading = styled.div`
   font-size: 1.2rem;
+  font-weight: 800;
   margin-bottom: 8px;
 `;
 
@@ -111,6 +112,13 @@ export const SuggestionFeedItem = styled.li`
     color: #888;
     line-height: 1.5;
   }
+`;
+
+export const SuggestionNotFound = styled.div`
+  color: #888;
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 1rem 0;
 `;
 
 export const SuggestionForm = props => (
